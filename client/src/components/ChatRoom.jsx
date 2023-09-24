@@ -13,6 +13,7 @@ function Chatroom() {
   const roomId = roomResource.id;
   const ws = new WebSocket("ws://localhost:3000/cable");
   const token = localStorage.getItem("access_token");
+
   useEffect(() => {
     ws.onopen = () => {
       console.log("Connected to websocket server");
@@ -80,6 +81,7 @@ function Chatroom() {
       await axios.post("http://localhost:3000/messages", messageData, {
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
 
