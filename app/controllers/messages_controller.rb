@@ -1,7 +1,7 @@
 class MessagesController < ApplicationController
   before_action :set_message, only: %i[ show update destroy ]
-  skip_before_action :authenticate_request
-  
+  before_action :authenticate_request
+
   # GET /messages
   def index
     @messages = Message.includes(:user).all
