@@ -6,13 +6,13 @@ function Chatroom() {
   const [guid, setGuid] = useState("");
   const [roomName, setRoomName] = useState("");
   const messagesContainer = document.getElementById("messages");
-  const userResource = JSON.parse(localStorage.getItem("user_resource"));
-  const userId = userResource.id;
+  const userResource = JSON.parse(localStorage.getItem("user_data"));
+  const userId = userResource.user_id;
   const username = userResource.username;
-  const roomResource = JSON.parse(localStorage.getItem("room_resource"));
+  const roomResource = JSON.parse(localStorage.getItem("room_data"));
   const roomId = roomResource.id;
   const ws = new WebSocket("ws://localhost:3000/cable");
-
+  const token = localStorage.getItem("access_token");
   useEffect(() => {
     ws.onopen = () => {
       console.log("Connected to websocket server");
@@ -77,14 +77,12 @@ function Chatroom() {
     };
 
     try {
-      // Use Axios for the POST request
       await axios.post("http://localhost:3000/messages", messageData, {
         headers: {
           "Content-Type": "application/json",
         },
       });
 
-      // After successful POST, fetch updated messages
       fetchMessages();
     } catch (error) {
       console.error("Error sending message:", error);
@@ -93,11 +91,15 @@ function Chatroom() {
 
   const fetchMessages = async () => {
     try {
-      // Use Axios for the GET request
-      const response = await axios.get("http://localhost:3000/messages");
+      const response = await axios.get("http://localhost:3000/messages", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
       const data = response.data;
       setMessagesAndScrollDown(data);
-      console.log(data, "fetchmessage");
     } catch (error) {
       console.error("Error fetching messages:", error);
     }
@@ -105,8 +107,12 @@ function Chatroom() {
 
   const fetchRoomName = async () => {
     try {
-      // Use Axios for the GET request
-      const response = await axios.get(`http://localhost:3000/rooms/${1}`);
+      const response = await axios.get(`http://localhost:3000/rooms/${1}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       const data = response.data;
       setRoomName(data);
     } catch (error) {
@@ -123,9 +129,13 @@ function Chatroom() {
       <div className="messages" id="messages">
         {messages?.map((message) => (
           <div className="message" key={message.id}>
-            <div className="chat chat-start">
-              <div className="chat-header">{message.username}:</div>
-              <div className="chat-bubble"> {message?.body ?? ""}</div>
+            <div
+              className={`chat chat-start ${
+                message.user_id === userId ? "chat-end" : "chat-start"
+              }`}
+            >
+              <div className="chat-header pb-2">{message.username}:</div>
+              <div className="chat-bubble mb-5"> {message?.body ?? ""}</div>
             </div>
           </div>
         ))}

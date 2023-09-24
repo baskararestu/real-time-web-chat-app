@@ -9,19 +9,19 @@ function LoginForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    const username = formData.get("username");
+    const email = formData.get("email");
     const password = formData.get("password");
 
     try {
       const response = await axios.post(`${baseUrl}/users/sign_in`, {
-        username,
+        email,
         password,
       });
       console.log(response);
       localStorage.setItem("access_token", response.data.access_token);
       localStorage.setItem("expires_at", response.data.expires_at);
       localStorage.setItem("user_data", JSON.stringify(response.data.user));
-      alert("Login successful!");
+      // alert("Login successful!");
       navigate("/");
     } catch (error) {
       alert(error.response.data.error);
@@ -40,17 +40,17 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="text-start flex flex-col">
             <label
-              htmlFor="username"
+              htmlFor="email"
               className="block text-sm font-medium leading-6 text-gray-900"
             >
-              Username
+              Email
             </label>
             <div className="mt-2">
               <input
                 type="text"
-                id="username"
-                name="username"
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                id="email"
+                name="email"
+                className="input input-md block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
             </div>
           </div>
@@ -66,14 +66,14 @@ function LoginForm() {
                 type="password"
                 id="password"
                 name="password"
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="input input-md block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
             </div>
           </div>
           <div>
             <button
               type="submit"
-              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="flex w-full justify-center rounded-md btn-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-primary-focus focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               Sign in
             </button>
@@ -84,7 +84,7 @@ function LoginForm() {
         Not a member?
         <a
           href="/register"
-          className="ml-1 font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
+          className="ml-1 font-semibold leading-6 text-primary hover:text-primary-focus"
         >
           Sign Up
         </a>

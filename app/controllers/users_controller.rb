@@ -41,6 +41,7 @@ class UsersController < ApplicationController
 
       render json: { message: 'Login successful', access_token: access_token, expires_at: expiration_time,
       user: {
+      user_id:user.id,
       username: user.username,
       email: user.email
       }}

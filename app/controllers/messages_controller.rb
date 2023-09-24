@@ -1,23 +1,24 @@
 class MessagesController < ApplicationController
   before_action :set_message, only: %i[ show update destroy ]
+  skip_before_action :authenticate_request
+  
+  # GET /messages
+  def index
+    @messages = Message.includes(:user).all
+    # Include the associated user's username in the JSON response
+    messages_with_username = @messages.map do |message|
+      {
+        id: message.id,
+        body: message.body,
+        created_at: message.created_at,
+        updated_at: message.updated_at,
+        user_id: message.user_id,
+        username: message.user.username # Include the username
+      }
+    end
 
-# GET /messages
-def index
-  @messages = Message.includes(:user).all
-  # Include the associated user's username in the JSON response
-  messages_with_username = @messages.map do |message|
-    {
-      id: message.id,
-      body: message.body,
-      created_at: message.created_at,
-      updated_at: message.updated_at,
-      user_id: message.user_id,
-      username: message.user.username # Include the username
-    }
+    render json: messages_with_username
   end
-
-  render json: messages_with_username
-end
 
 
   # GET /messages/1
