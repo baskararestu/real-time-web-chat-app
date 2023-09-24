@@ -1,39 +1,45 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios"; // Import Axios
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 
-function Chatroom() {
+function Chatroom({ selectedRoom }) {
   const [messages, setMessages] = useState([]);
-  const [guid, setGuid] = useState("");
   const [roomName, setRoomName] = useState("");
   const messagesContainer = document.getElementById("messages");
   const userResource = JSON.parse(localStorage.getItem("user_data"));
   const userId = userResource.user_id;
   const username = userResource.username;
-  const roomResource = JSON.parse(localStorage.getItem("room_data"));
-  const roomId = roomResource.id;
-  const ws = new WebSocket("ws://localhost:3000/cable");
+  const ws = useRef(null);
   const token = localStorage.getItem("access_token");
 
   useEffect(() => {
-    ws.onopen = () => {
-      console.log("Connected to websocket server");
-      setGuid(Math.random().toString(36).substring(2, 15));
+    if (ws.current) {
+      ws.current.close();
+    }
 
-      ws.send(
+    if (!selectedRoom) {
+      return;
+    }
+
+    // Open a new WebSocket connection for the selected room
+    ws.current = new WebSocket("ws://localhost:3000/cable");
+
+    ws.current.onopen = () => {
+      console.log("Connected to websocket server");
+
+      ws.current.send(
         JSON.stringify({
           command: "subscribe",
           identifier: JSON.stringify({
             user_id: userId,
             channel: `MessagesChannel`,
-            room_id: roomId,
+            room_id: selectedRoom,
             username: username,
           }),
         })
       );
-      console.log(roomId);
     };
 
-    ws.onmessage = (e) => {
+    ws.current.onmessage = (e) => {
       const data = JSON.parse(e.data);
       if (data.type === "ping") return;
       if (data.type === "welcome") return;
@@ -41,20 +47,21 @@ function Chatroom() {
 
       console.log(data);
       const message = data.message;
-      setMessagesAndScrollDown([...messages, message]); // No need to spread message again
-
+      setMessagesAndScrollDown([...messages, message]);
       console.log("Username:", message.username);
     };
 
     return () => {
-      ws.close();
+      // Close the WebSocket connection when the component unmounts
+      if (ws.current) {
+        ws.current.close();
+      }
     };
-  }, [userId, roomId, messages]);
+  }, [userId, selectedRoom, messages]);
 
   const setMessagesAndScrollDown = (data) => {
     setMessages(data);
     resetScroll();
-    console.log("State updated with new messages:", data);
   };
 
   const resetScroll = () => {
@@ -65,7 +72,7 @@ function Chatroom() {
   useEffect(() => {
     fetchMessages();
     fetchRoomName();
-  }, []);
+  }, [selectedRoom]); // Fetch messages and room name when selectedRoom changes
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,7 +81,7 @@ function Chatroom() {
     const messageData = {
       body,
       user_id: userId,
-      room_id: roomId,
+      room_id: selectedRoom,
     };
 
     try {
@@ -93,13 +100,21 @@ function Chatroom() {
 
   const fetchMessages = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/messages", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      if (!selectedRoom) {
+        return; // Don't proceed if selectedRoom is null
+      }
 
+      const response = await axios.get(
+        `http://localhost:3000/messages?room_id=${selectedRoom}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(response);
+      console.log(selectedRoom, "selected room message");
       const data = response.data;
       setMessagesAndScrollDown(data);
     } catch (error) {
@@ -109,12 +124,19 @@ function Chatroom() {
 
   const fetchRoomName = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/rooms/${1}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      if (!selectedRoom) {
+        return; // Don't proceed if selectedRoom is null
+      }
+
+      const response = await axios.get(
+        `http://localhost:3000/rooms/${selectedRoom}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const data = response.data;
       setRoomName(data);
     } catch (error) {
@@ -122,13 +144,19 @@ function Chatroom() {
     }
   };
 
+  if (!selectedRoom) {
+    return <div>Select a room to chat.</div>;
+  }
+  console.log(selectedRoom);
   return (
-    <div className="card h-[35rem] w-full shadow-lg bg-gray-500/20">
+    <div className="card h-[32rem] w-full shadow-lg bg-gray-500/20">
       <div className="messageHeader">
         <h1>{roomName.name}</h1>
-        <p>Guid: {guid}</p>
       </div>
-      <div className="messages" id="messages">
+      <div
+        className="flex flex-col justify-center mx-5 h-[50rem] overflow-y-scroll p-4 my-10 w-[95%]"
+        id="messages"
+      >
         {messages?.map((message) => (
           <div className="message" key={message.id}>
             <div
@@ -136,16 +164,20 @@ function Chatroom() {
                 message.user_id === userId ? "chat-end" : "chat-start"
               }`}
             >
-              <div className="chat-header pb-2">{message.username}:</div>
-              <div className="chat-bubble mb-5"> {message?.body ?? ""}</div>
+              <div className="chat-header pb-2 font-semibold uppercase">
+                {message.username}
+              </div>
+              <div className="chat-bubble chat-bubble-secondary w-[20rem] mb-5">
+                {message?.body ?? ""}
+              </div>
             </div>
           </div>
         ))}
       </div>
-      <div className="messageForm">
+      <div className="messageForm my-3 pt-2">
         <form
           onSubmit={handleSubmit}
-          className="flex justify-center items-center gap-3"
+          className="flex justify-center items-center gap-3`"
         >
           <input
             type="text"

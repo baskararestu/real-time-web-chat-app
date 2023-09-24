@@ -4,7 +4,11 @@ class MessagesController < ApplicationController
 
   # GET /messages
   def index
-    @messages = Message.includes(:user).all
+    room_id = params[:room_id]  # Assuming you pass the room_id as a query parameter or in the request
+
+    # Retrieve messages for the specified room_id
+    @messages = Message.includes(:user).where(room_id: room_id)
+
     # Include the associated user's username in the JSON response
     messages_with_username = @messages.map do |message|
       {
