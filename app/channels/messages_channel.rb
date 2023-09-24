@@ -1,9 +1,5 @@
-# app/channels/messages_channel.rb
-
 class MessagesChannel < ApplicationCable::Channel
   def subscribed
-        # room = Room.find(params[:room_id])
-    # Stream name for debugging purposes
     stream_name = "MessagesChannel"
     
     # Debugging statement
@@ -12,18 +8,16 @@ class MessagesChannel < ApplicationCable::Channel
     stream_from stream_name
   end
 
-  def send_message(data)
-    # Debugging statement
-    puts "Received message: #{data}"
-    
-    # room = Room.find(params[:room_id])
-    user = current_user
-    message = room.messages.create(body: data['body'], user: user)
-    
-    # Debugging statement
-    puts "Broadcasting message: #{message.body}, user: #{user.username}"
-    
-    ActionCable.server.broadcast "MessagesChannel", message: message.body, user: user.username
+  def receive(data)
+    # Create a message and broadcast it
+    message = Message.create!(
+      body: data['body'],
+      user_id: data['user_id'],
+      room_id: data['room_id']
+    )
+
+    # Broadcast the message to the room
+    MessagesChannel.broadcast_to(message.room, message: message)
   end
 
   def unsubscribed

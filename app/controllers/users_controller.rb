@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_user, only: %i[ show update destroy ]
+  skip_before_action :authenticate_request, only: [:create, :sign_in]
 
   # GET /users
   def index
@@ -15,28 +16,37 @@ class UsersController < ApplicationController
 
   # POST /users
   def create
-    @user = User.new(user_params)
-
-    if @user.save
-      render json: @user, status: :created, location: @user
-    else
-      render json: @user.errors, status: :unprocessable_entity
+    user = User.new(user_params)
+    
+    begin
+      if user.save
+        render json: { message: 'User registered successfully', user: user }, status: :created
+      else
+        render json: { error: user.errors.full_messages.join(', ') }, status: :unprocessable_entity
+      end
+    rescue ActiveRecord::RecordNotUnique => e
+      if e.message.include?('users.username')
+        render json: { error: 'Username has already been taken' }, status: :unprocessable_entity
+      else
+        render json: { error: 'Email has already been taken' }, status: :unprocessable_entity
+      end
     end
   end
 
   def sign_in
-    username = params[:username]
-    password = params[:password]
+    user = User.find_by(email: params[:email])
+    if user && user.authenticate(params[:password])
+      expiration_time = Time.now + 360.minutes
+      access_token = JsonWebToken.encode(user_id: user.id)
 
-    # Find a user by username
-    @user = User.find_by(username: username)
+      render json: { message: 'Login successful', access_token: access_token, expires_at: expiration_time,
+      user: {
+      username: user.username,
+      email: user.email
+      }}
 
-    if @user && @user.authenticate(password)
-      # Successful sign-in
-      render json: { message: 'Sign-in successful', user: @user }
     else
-      # Invalid username or password
-      render json: { error: 'Invalid username or password' }, status: :unauthorized
+      render json: { error: 'Invalid email or password' }, status: :unauthorized
     end
   end
 
@@ -60,8 +70,8 @@ class UsersController < ApplicationController
       @user = User.find(params[:id])
     end
 
-    # Only allow a list of trusted parameters through.
-    def user_params
-      params.require(:user).permit(:username, :password)
-    end
+  # Only allow a list of trusted parameters through.
+  def user_params
+    params.permit(:username, :email, :password, :password_confirmation)
+  end
 end

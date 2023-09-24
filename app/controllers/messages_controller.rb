@@ -42,7 +42,7 @@ end
 
     if @message.save
       render json: @message, status: :created, location: @message
-      ActionCable.server.broadcast "MessagesChannel", message: @message.body, user: current_user.username
+      ActionCable.server.broadcast "MessagesChannel", { message: @message.body, user_id: user_id, username: user.username }
     else
       render json: @message.errors, status: :unprocessable_entity
     end
