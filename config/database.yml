@@ -2,18 +2,19 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: rails
-  password: aaf12bd76e3f9002921cd148f7fd139f
-  host: 161.35.225.109
+  username: postgres
+  password: NumLAGfU06rne0ox0kJM
+  host: containers-us-west-150.railway.app
+  port: 6280
 
 development:
   <<: *default
-  database: webchatapp-rails
+  database: railway
 
 test:
   <<: *default
-  database: webchatapp-rails
+  database: railway
 
 production:
   <<: *default
-  database: webchatapp-rails
+  database: railway
