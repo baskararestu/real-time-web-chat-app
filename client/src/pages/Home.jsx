@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Chatroom from "../components/chatroom";
+import Chatroom from "../components/Chatroom";
 import SideBar from "../components/SideBar";
 import RoomList from "../components/RoomList";
 import GreetingCard from "../components/GreetingCard";
