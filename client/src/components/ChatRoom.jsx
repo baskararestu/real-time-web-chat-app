@@ -10,6 +10,7 @@ function Chatroom({ selectedRoom }) {
   const username = userResource.username;
   const ws = useRef(null);
   const token = localStorage.getItem("access_token");
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     if (ws.current) {
@@ -85,7 +86,7 @@ function Chatroom({ selectedRoom }) {
     };
 
     try {
-      await axios.post("http://localhost:3000/messages", messageData, {
+      await axios.post(`${baseUrl}/messages`, messageData, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -105,7 +106,7 @@ function Chatroom({ selectedRoom }) {
       }
 
       const response = await axios.get(
-        `http://localhost:3000/messages?room_id=${selectedRoom}`,
+        `${baseUrl}/messages?room_id=${selectedRoom}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -128,15 +129,12 @@ function Chatroom({ selectedRoom }) {
         return; // Don't proceed if selectedRoom is null
       }
 
-      const response = await axios.get(
-        `http://localhost:3000/rooms/${selectedRoom}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.get(`${baseUrl}/rooms/${selectedRoom}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       const data = response.data;
       setRoomName(data);
     } catch (error) {

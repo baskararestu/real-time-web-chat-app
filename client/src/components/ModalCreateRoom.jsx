@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 function ModalCreateRoom() {
   const [roomName, setRoomName] = useState("");
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
   const handleCloseModal = () => {
     const modal = document.getElementById("create_room");
@@ -10,7 +11,7 @@ function ModalCreateRoom() {
 
   const fecthRooms = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/rooms", {
+      const response = await axios.get(`${baseUrl}/rooms`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -31,7 +32,7 @@ function ModalCreateRoom() {
       }
 
       const response = await axios.post(
-        "http://localhost:3000/rooms",
+        `${baseUrl}/rooms`,
         {
           name: roomName,
         },

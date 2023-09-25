@@ -5,6 +5,7 @@ function RoomList({ onRoomClick }) {
   const [rooms, setRooms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeRoom, setActiveRoom] = useState(null);
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -16,7 +17,7 @@ function RoomList({ onRoomClick }) {
           return;
         }
 
-        const response = await axios.get("http://localhost:3000/rooms", {
+        const response = await axios.get(`${baseUrl}/rooms`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
