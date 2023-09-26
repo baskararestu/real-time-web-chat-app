@@ -1,6 +1,7 @@
 import axios from "axios";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function LoginForm() {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -21,8 +22,9 @@ function LoginForm() {
       localStorage.setItem("access_token", response.data.access_token);
       localStorage.setItem("expires_at", response.data.expires_at);
       localStorage.setItem("user_data", JSON.stringify(response.data.user));
-      // alert("Login successful!");
-      navigate("/");
+      window.location.href = "/";
+      alert(response.data.message);
+      // navigate("/");
     } catch (error) {
       alert(error.response.data.error);
       console.log(error);

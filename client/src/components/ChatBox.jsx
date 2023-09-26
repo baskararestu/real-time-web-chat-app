@@ -11,8 +11,13 @@ function ChatBox({ selectedRoom }) {
   const ws = useRef(null);
   const token = localStorage.getItem("access_token");
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
 
   useEffect(() => {
+    if (ws.current && isWebSocketConnected) {
+      return;
+    }
+
     if (ws.current) {
       ws.current.close();
     }
@@ -21,10 +26,13 @@ function ChatBox({ selectedRoom }) {
       return;
     }
 
-    // Open a new WebSocket connection for the selected room
+    const roomChannel = `room_${selectedRoom}`;
+    console.log(`Subscribing to room channel: ${roomChannel}`);
+
     ws.current = new WebSocket("ws://localhost:3000/cable");
 
     ws.current.onopen = () => {
+      setIsWebSocketConnected(true);
       console.log("Connected to websocket server");
 
       ws.current.send(
@@ -32,7 +40,7 @@ function ChatBox({ selectedRoom }) {
           command: "subscribe",
           identifier: JSON.stringify({
             user_id: userId,
-            channel: `MessagesChannel`,
+            channel: "MessagesChannel",
             room_id: selectedRoom,
             username: username,
           }),
@@ -46,16 +54,14 @@ function ChatBox({ selectedRoom }) {
       if (data.type === "welcome") return;
       if (data.type === "confirm_subscription") return;
 
-      console.log(data);
       const message = data.message;
       setMessagesAndScrollDown([...messages, message]);
-      console.log("Username:", message.username);
     };
 
     return () => {
-      // Close the WebSocket connection when the component unmounts
       if (ws.current) {
         ws.current.close();
+        setIsWebSocketConnected(false);
       }
     };
   }, [userId, selectedRoom, messages]);
@@ -73,7 +79,7 @@ function ChatBox({ selectedRoom }) {
   useEffect(() => {
     fetchMessages();
     fetchRoomName();
-  }, [selectedRoom]); // Fetch messages and room name when selectedRoom changes
+  }, [selectedRoom]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -102,7 +108,7 @@ function ChatBox({ selectedRoom }) {
   const fetchMessages = async () => {
     try {
       if (!selectedRoom) {
-        return; // Don't proceed if selectedRoom is null
+        return;
       }
 
       const response = await axios.get(
@@ -126,7 +132,7 @@ function ChatBox({ selectedRoom }) {
   const fetchRoomName = async () => {
     try {
       if (!selectedRoom) {
-        return; // Don't proceed if selectedRoom is null
+        return;
       }
 
       const response = await axios.get(`${baseUrl}/rooms/${selectedRoom}`, {

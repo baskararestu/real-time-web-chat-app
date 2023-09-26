@@ -1,29 +1,27 @@
 class MessagesChannel < ApplicationCable::Channel
   def subscribed
-    stream_name = "MessagesChannel"
-    
-    # Debugging statement
-    puts "Subscribed to #{stream_name}"
-    
-    stream_from stream_name
+    stream_from "room_#{params[:room_id]}"
   end
 
   def receive(data)
-    # Create a message and broadcast it
+    user = User.find(data['user_id']) 
+    room = Room.find(data['room_id']) 
+
     message = Message.create!(
       body: data['body'],
-      user_id: data['user_id'],
-      room_id: data['room_id']
+      user_id: user.id,
+      room_id: room.id
     )
 
-    # Broadcast the message to the room
-    MessagesChannel.broadcast_to(message.room, message: message)
+    ActionCable.server.broadcast "room_#{message.room_id}", {
+      message: message.body,
+      user_id: message.user_id,
+      username: user.username,
+      room_id: message.room_id
+    }
   end
 
   def unsubscribed
-    # Debugging statement
     puts "Unsubscribed from MessagesChannel"
-    
-    # Any cleanup needed when channel is unsubscribed
   end
 end

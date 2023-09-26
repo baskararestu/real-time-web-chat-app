@@ -48,3 +48,5 @@ group :development do
 end
 gem 'jwt'
 
+
+gem "dotenv", "~> 2.8"

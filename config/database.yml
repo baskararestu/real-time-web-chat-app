@@ -3,7 +3,7 @@ default: &default
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   username: postgres
-  password: <%= ENV["DATABASE_URL"] %>
+  password: zLqoH2q84WMQFx1cWxY2
   host: containers-us-west-185.railway.app
   port: 5811
   database: railway

@@ -1,18 +1,16 @@
 class Message < ApplicationRecord
-    after_create_commit {broadcast_message}
-      belongs_to :user
+  after_create_commit { broadcast_message }
+  belongs_to :user
   belongs_to :room
 
-    private
+  private
 
   def broadcast_message
-    # Broadcast the message to the MessagesChannel of the associated room
-    ActionCable.server.broadcast("MessagesChannel", {
+    ActionCable.server.broadcast("room_#{room_id}", {
       user_id: user_id,
-      username:user.username,
+      username: user.username,
       body: body,
       room_id: room_id
     })
   end
-
 end

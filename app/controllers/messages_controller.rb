@@ -32,12 +32,10 @@ class MessagesController < ApplicationController
 
   # POST /messages
   def create
-    # Assuming you have a user authenticated and stored in localStorage
     user_id = params[:message][:user_id]
     room_id = params[:message][:room_id]
     puts "user_id: #{user_id}, room_id: #{room_id}"
 
-    # Find the user and room based on the provided IDs
     user = User.find(user_id)
     room = Room.find(room_id)
 
@@ -47,10 +45,11 @@ class MessagesController < ApplicationController
 
     if @message.save
       render json: @message, status: :created, location: @message
-      ActionCable.server.broadcast "MessagesChannel", { message: @message.body, user_id: user_id, username: user.username }
+      ActionCable.server.broadcast "room_#{@message.room_id}", { message: @message.body, user_id: user_id, username: user.username }
     else
       render json: @message.errors, status: :unprocessable_entity
     end
+
   end
 
 
