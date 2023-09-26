@@ -30,7 +30,7 @@ function ChatBox({ selectedRoom }) {
     const roomChannel = `room_${selectedRoom}`;
     console.log(`Subscribing to room channel: ${roomChannel}`);
 
-    ws.current = new WebSocket(`ws:${VITE_API_WEB_SOCKET}`);
+    ws.current = new WebSocket(`ws:${websocketUrl}`);
 
     ws.current.onopen = () => {
       setIsWebSocketConnected(true);
