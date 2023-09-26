@@ -11,6 +11,7 @@ function ChatBox({ selectedRoom }) {
   const ws = useRef(null);
   const token = localStorage.getItem("access_token");
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const websocketUrl = import.meta.env.VITE_API_WEB_SOCKET;
   const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
 
   useEffect(() => {
@@ -29,7 +30,7 @@ function ChatBox({ selectedRoom }) {
     const roomChannel = `room_${selectedRoom}`;
     console.log(`Subscribing to room channel: ${roomChannel}`);
 
-    ws.current = new WebSocket("ws://localhost:3000/cable");
+    ws.current = new WebSocket(`ws:${VITE_API_WEB_SOCKET}`);
 
     ws.current.onopen = () => {
       setIsWebSocketConnected(true);
