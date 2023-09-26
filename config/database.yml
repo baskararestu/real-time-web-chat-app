@@ -6,6 +6,7 @@ default: &default
   password: <%= ENV["DATABASE_URL"] %>
   host: containers-us-west-185.railway.app
   port: 5811
+  database: railway
 
 development:
   <<: *default
