@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Chatroom from "../components/Chatroom";
+import ChatBox from "../components/ChatBox";
 import SideBar from "../components/SideBar";
 import RoomList from "../components/RoomList";
 import GreetingCard from "../components/GreetingCard";
@@ -21,7 +21,7 @@ function Home() {
       <div className="w-3/4">
         <div className="flex w-full h-full">
           {selectedRoom ? (
-            <Chatroom selectedRoom={selectedRoom} />
+            <ChatBox selectedRoom={selectedRoom} />
           ) : (
             <div className="w-full">
               <GreetingCard />
