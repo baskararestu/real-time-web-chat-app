@@ -11,30 +11,30 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.0].define(version: 2023_09_24_162422) do
-  create_table "messages", force: :cascade do |t|
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+  enable_extension "timescaledb"
+
+  create_table "messages", id: :serial, force: :cascade do |t|
     t.text "body"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.timestamptz "created_at", null: false
+    t.timestamptz "updated_at", null: false
     t.integer "user_id", null: false
     t.integer "room_id", null: false
-    t.index ["room_id"], name: "index_messages_on_room_id"
-    t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
-  create_table "rooms", force: :cascade do |t|
+  create_table "rooms", id: :serial, force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.timestamptz "created_at", null: false
+    t.timestamptz "updated_at", null: false
   end
 
-  create_table "users", force: :cascade do |t|
+  create_table "users", id: :serial, force: :cascade do |t|
     t.string "username", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.timestamptz "created_at", null: false
+    t.timestamptz "updated_at", null: false
     t.string "password_digest"
     t.string "email", null: false
-    t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["username"], name: "index_users_on_username", unique: true
   end
 
   add_foreign_key "messages", "rooms"
