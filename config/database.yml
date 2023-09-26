@@ -2,19 +2,19 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: postgres
-  password: NumLAGfU06rne0ox0kJM
-  host: containers-us-west-150.railway.app
-  port: 6280
+  # username: postgres
+  # password: NumLAGfU06rne0ox0kJM
+  # host: containers-us-west-150.railway.app
+  # port: 6280
 
 development:
   <<: *default
-  database: railway
+  url: <%= ENV["DATABASE_URL"] %>
 
 test:
   <<: *default
-  database: railway
+  url: <%= ENV["DATABASE_URL"] %>
 
 production:
   <<: *default
-  database: railway
+  url: <%= ENV["DATABASE_URL"] %>
