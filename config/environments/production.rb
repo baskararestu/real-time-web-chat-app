@@ -3,7 +3,7 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
   # Allow specific hostname(s) to connect to the application
-  config.hosts << "webchatapp-rails.baskararw.com"
+  config.hosts << ".baskararw.com"
 
   # Code is not reloaded between requests.
   config.cache_classes = true
