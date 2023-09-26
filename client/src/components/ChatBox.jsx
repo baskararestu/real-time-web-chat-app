@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
-function Chatroom({ selectedRoom }) {
+function ChatBox({ selectedRoom }) {
   const [messages, setMessages] = useState([]);
   const [roomName, setRoomName] = useState("");
   const messagesContainer = document.getElementById("messages");
@@ -192,4 +192,4 @@ function Chatroom({ selectedRoom }) {
   );
 }
 
-export default Chatroom;
+export default ChatBox;
